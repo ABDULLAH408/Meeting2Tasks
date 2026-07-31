@@ -22,12 +22,8 @@ exports.getMeetings = getMeetings;
 const getStats = async (req, res) => {
     try {
         const [meetingsData, tasksData] = await Promise.all([
-            dynamodb_1.ddbDocClient.send(new lib_dynamodb_1.ScanCommand({ TableName: config_1.config.dynamoMeetingsTable, ProjectionExpression: "MeetingID" })),
-            dynamodb_1.ddbDocClient.send(new lib_dynamodb_1.ScanCommand({
-                TableName: config_1.config.dynamoTasksTable,
-                ProjectionExpression: "TaskID, #status, Priority",
-                ExpressionAttributeNames: { "#status": "Status" }
-            }))
+            dynamodb_1.ddbDocClient.send(new lib_dynamodb_1.ScanCommand({ TableName: config_1.config.dynamoMeetingsTable })),
+            dynamodb_1.ddbDocClient.send(new lib_dynamodb_1.ScanCommand({ TableName: config_1.config.dynamoTasksTable }))
         ]);
         const meetings = meetingsData.Items || [];
         const tasks = tasksData.Items || [];
