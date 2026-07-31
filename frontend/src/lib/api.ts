@@ -1,4 +1,5 @@
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API_BASE = baseUrl.endsWith("/api") ? baseUrl : `${baseUrl.replace(/\/$/, "")}/api`;
 
 export async function analyzeMeeting(transcript: string) {
     console.log("[Frontend API] Sending transcript length:", transcript.length);
