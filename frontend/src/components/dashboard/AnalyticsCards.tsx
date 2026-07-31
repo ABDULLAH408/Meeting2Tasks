@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card";
-import { CheckCircle2, ListTodo, Presentation, AlertCircle, BarChart3, Users } from "lucide-react";
+import { CheckCircle2, ListTodo, Presentation, AlertCircle } from "lucide-react";
 
 export function AnalyticsCards({ stats }: { stats: any }) {
   if (!stats) return null;
