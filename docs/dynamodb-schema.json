@@ -1,0 +1,22 @@
+{
+  "Meetings": {
+    "TableName": "Meeting2Tasks-Meetings",
+    "KeySchema": [
+      { "AttributeName": "MeetingID", "KeyType": "HASH" }
+    ],
+    "AttributeDefinitions": [
+      { "AttributeName": "MeetingID", "AttributeType": "S" }
+    ],
+    "BillingMode": "PAY_PER_REQUEST"
+  },
+  "Tasks": {
+    "TableName": "Meeting2Tasks-Tasks",
+    "KeySchema": [
+      { "AttributeName": "TaskID", "KeyType": "HASH" }
+    ],
+    "AttributeDefinitions": [
+      { "AttributeName": "TaskID", "AttributeType": "S" }
+    ],
+    "BillingMode": "PAY_PER_REQUEST"
+  }
+}
