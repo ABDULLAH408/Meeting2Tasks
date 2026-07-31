@@ -2,7 +2,8 @@ import express from "express";
 import cors from "cors";
 import { analyzeMeeting } from "./controllers/analysis";
 import { getTasks, updateTask, deleteTask } from "./controllers/tasks";
-import { getMeetings, getStats, getMeetingById, deleteMeeting } from "./controllers/meetings";
+import { getStats } from "./controllers/meetings";
+import meetingsRouter from "./routes/meetings";
 
 const app = express();
 
@@ -16,9 +17,7 @@ app.get("/api/tasks", getTasks);
 app.put("/api/tasks/:id", updateTask);
 app.delete("/api/tasks/:id", deleteTask);
 
-app.get("/api/meetings", getMeetings);
-app.get("/api/meetings/:id", getMeetingById);
-app.delete("/api/meetings/:id", deleteMeeting);
+app.use("/api/meetings", meetingsRouter);
 app.get("/api/stats", getStats);
 
 // Health check

@@ -3,9 +3,9 @@ version = 0.1
 [default]
 [default.deploy]
 [default.deploy.parameters]
-stack_name = "meeting2tasks"
+stack_name = "Meeting2Tasks"
 resolve_s3 = true
-s3_prefix = "meeting2tasks"
+s3_prefix = "Meeting2Tasks"
 region = "us-east-1"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
