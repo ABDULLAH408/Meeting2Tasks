@@ -1,0 +1,28 @@
+{
+  "name": "meeting2tasks-backend",
+  "version": "1.0.0",
+  "description": "Backend for Meeting2Tasks",
+  "main": "dist/lambda.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.731.0",
+    "@aws-sdk/lib-dynamodb": "^3.731.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "groq-sdk": "^0.15.0",
+    "serverless-http": "^3.2.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.10.7",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.7.3"
+  }
+}

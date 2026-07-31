@@ -1,0 +1,127 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'Meeting2Tasks Backend Infrastructure SAM Template for deploying the
+  Meeting2Tasks serverless backend.
+
+  '
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 512
+    Runtime: nodejs20.x
+    Architectures:
+    - arm64
+Parameters:
+  GroqApiKey:
+    Type: String
+    Description: API Key for Groq
+    NoEcho: true
+  GroqModel:
+    Type: String
+    Description: Model name to use in Groq
+    Default: llama-3.1-8b-instant
+  FrontendOrigin:
+    Type: String
+    Description: Allowed origin for CORS
+    Default: '*'
+Resources:
+  MeetingsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+      - AttributeName: MeetingID
+        AttributeType: S
+      KeySchema:
+      - AttributeName: MeetingID
+        KeyType: HASH
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+  TasksTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+      - AttributeName: TaskID
+        AttributeType: S
+      KeySchema:
+      - AttributeName: TaskID
+        KeyType: HASH
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+  Meeting2TasksApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowOrigins:
+        - Ref: FrontendOrigin
+        AllowMethods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - OPTIONS
+        AllowHeaders:
+        - Content-Type
+        - Authorization
+        MaxAge: 3600
+  Meeting2TasksFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: Meeting2TasksFunction
+      Handler: dist/lambda.handler
+      Environment:
+        Variables:
+          GROQ_API_KEY:
+            Ref: GroqApiKey
+          GROQ_MODEL:
+            Ref: GroqModel
+          DYNAMODB_MEETINGS_TABLE:
+            Ref: MeetingsTable
+          DYNAMODB_TASKS_TABLE:
+            Ref: TasksTable
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: MeetingsTable
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: TasksTable
+      Events:
+        ApiEvent:
+          Type: HttpApi
+          Properties:
+            ApiId:
+              Ref: Meeting2TasksApi
+            Path: /{proxy+}
+            Method: ANY
+    Metadata:
+      SamResourceId: Meeting2TasksFunction
+  Meeting2TasksFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName:
+        Fn::Sub: /aws/lambda/${Meeting2TasksFunction}
+      RetentionInDays: 14
+Outputs:
+  ApiUrl:
+    Description: API Gateway endpoint URL
+    Value:
+      Fn::Sub: https://${Meeting2TasksApi}.execute-api.${AWS::Region}.amazonaws.com
+  LambdaFunctionName:
+    Description: Lambda Function Name
+    Value:
+      Ref: Meeting2TasksFunction
+  Region:
+    Description: AWS Region
+    Value:
+      Ref: AWS::Region
+  MeetingsTableName:
+    Description: Meetings DynamoDB Table Name
+    Value:
+      Ref: MeetingsTable
+  TasksTableName:
+    Description: Tasks DynamoDB Table Name
+    Value:
+      Ref: TasksTable
