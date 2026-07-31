@@ -17,6 +17,8 @@ app.get("/api/tasks", tasks_1.getTasks);
 app.put("/api/tasks/:id", tasks_1.updateTask);
 app.delete("/api/tasks/:id", tasks_1.deleteTask);
 app.get("/api/meetings", meetings_1.getMeetings);
+app.get("/api/meetings/:id", meetings_1.getMeetingById);
+app.delete("/api/meetings/:id", meetings_1.deleteMeeting);
 app.get("/api/stats", meetings_1.getStats);
 // Health check
 app.get("/api/health", (req, res) => {

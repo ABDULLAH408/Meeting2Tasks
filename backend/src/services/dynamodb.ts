@@ -49,24 +49,24 @@ export const ddbDocClient = {
       }
 
       if (command instanceof GetCommand) {
-        const key = command.input.Key;
+        const key: any = command.input.Key || {};
         const item = store.find((i: any) => i.TaskID === key.TaskID || i.MeetingID === key.MeetingID);
         return { Item: item };
       }
 
       if (command instanceof DeleteCommand) {
-        const key = command.input.Key;
+        const key: any = command.input.Key || {};
         const index = store.findIndex((i: any) => i.TaskID === key.TaskID || i.MeetingID === key.MeetingID);
         if (index > -1) store.splice(index, 1);
         return {};
       }
 
       if (command instanceof UpdateCommand) {
-        const key = command.input.Key;
+        const key: any = command.input.Key || {};
         const item = store.find((i: any) => i.TaskID === key.TaskID || i.MeetingID === key.MeetingID);
         if (item) {
           // Simplistic mock update
-          const vals = command.input.ExpressionAttributeValues;
+          const vals: any = command.input.ExpressionAttributeValues || {};
           if (vals[":s"]) item.Status = vals[":s"];
           if (vals[":t"]) item.Title = vals[":t"];
           if (vals[":d"]) item.Description = vals[":d"];

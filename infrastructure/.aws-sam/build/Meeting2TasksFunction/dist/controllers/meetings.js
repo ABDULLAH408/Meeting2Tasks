@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getStats = exports.getMeetings = void 0;
+exports.deleteMeeting = exports.getMeetingById = exports.getStats = exports.getMeetings = void 0;
 const dynamodb_1 = require("../services/dynamodb");
 const lib_dynamodb_1 = require("@aws-sdk/lib-dynamodb");
 const config_1 = require("../config");
@@ -23,7 +23,11 @@ const getStats = async (req, res) => {
     try {
         const [meetingsData, tasksData] = await Promise.all([
             dynamodb_1.ddbDocClient.send(new lib_dynamodb_1.ScanCommand({ TableName: config_1.config.dynamoMeetingsTable, ProjectionExpression: "MeetingID" })),
-            dynamodb_1.ddbDocClient.send(new lib_dynamodb_1.ScanCommand({ TableName: config_1.config.dynamoTasksTable, ProjectionExpression: "TaskID, Status, Priority" }))
+            dynamodb_1.ddbDocClient.send(new lib_dynamodb_1.ScanCommand({
+                TableName: config_1.config.dynamoTasksTable,
+                ProjectionExpression: "TaskID, #status, Priority",
+                ExpressionAttributeNames: { "#status": "Status" }
+            }))
         ]);
         const meetings = meetingsData.Items || [];
         const tasks = tasksData.Items || [];
@@ -50,3 +54,51 @@ const getStats = async (req, res) => {
     }
 };
 exports.getStats = getStats;
+const getMeetingById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const data = await dynamodb_1.ddbDocClient.send(new lib_dynamodb_1.GetCommand({
+            TableName: config_1.config.dynamoMeetingsTable,
+            Key: { MeetingID: id },
+        }));
+        if (!data.Item) {
+            return res.status(404).json({ error: "Meeting not found" });
+        }
+        res.status(200).json(data.Item);
+    }
+    catch (error) {
+        console.error("Error fetching meeting:", error);
+        res.status(500).json({ error: "Failed to fetch meeting" });
+    }
+};
+exports.getMeetingById = getMeetingById;
+const deleteMeeting = async (req, res) => {
+    try {
+        const { id } = req.params;
+        // First, fetch all tasks for this meeting to delete them
+        const tasksData = await dynamodb_1.ddbDocClient.send(new lib_dynamodb_1.ScanCommand({
+            TableName: config_1.config.dynamoTasksTable,
+            FilterExpression: "MeetingID = :mId",
+            ExpressionAttributeValues: { ":mId": id }
+        }));
+        const tasks = tasksData.Items || [];
+        // Delete tasks
+        for (const task of tasks) {
+            await dynamodb_1.ddbDocClient.send(new lib_dynamodb_1.DeleteCommand({
+                TableName: config_1.config.dynamoTasksTable,
+                Key: { TaskID: task.TaskID }
+            }));
+        }
+        // Delete meeting
+        await dynamodb_1.ddbDocClient.send(new lib_dynamodb_1.DeleteCommand({
+            TableName: config_1.config.dynamoMeetingsTable,
+            Key: { MeetingID: id }
+        }));
+        res.status(200).json({ success: true });
+    }
+    catch (error) {
+        console.error("Error deleting meeting:", error);
+        res.status(500).json({ error: "Failed to delete meeting" });
+    }
+};
+exports.deleteMeeting = deleteMeeting;

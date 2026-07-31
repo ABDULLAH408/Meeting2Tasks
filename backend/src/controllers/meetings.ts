@@ -11,7 +11,7 @@ export const getMeetings = async (req: Request, res: Response) => {
       })
     );
     // Sort by CreatedAt descending
-    const meetings = (data.Items || []).sort((a, b) => 
+    const meetings = (data.Items || []).sort((a: any, b: any) => 
       new Date(b.CreatedAt).getTime() - new Date(a.CreatedAt).getTime()
     );
     res.status(200).json(meetings);
@@ -37,9 +37,9 @@ export const getStats = async (req: Request, res: Response) => {
 
     const totalMeetings = meetings.length;
     const totalTasks = tasks.length;
-    const completedTasks = tasks.filter((t) => t.Status === "Completed").length;
+    const completedTasks = tasks.filter((t: any) => t.Status === "Completed").length;
     const pendingTasks = totalTasks - completedTasks;
-    const highPriorityTasks = tasks.filter((t) => t.Priority === "High").length;
+    const highPriorityTasks = tasks.filter((t: any) => t.Priority === "High").length;
     
     const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
     const avgTasksPerMeeting = totalMeetings > 0 ? Math.round(totalTasks / totalMeetings) : 0;

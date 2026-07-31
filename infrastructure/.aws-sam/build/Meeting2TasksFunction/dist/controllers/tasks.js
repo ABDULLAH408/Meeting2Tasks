@@ -6,10 +6,21 @@ const lib_dynamodb_1 = require("@aws-sdk/lib-dynamodb");
 const config_1 = require("../config");
 const getTasks = async (req, res) => {
     try {
-        // In a real production app, we should use Query with a GSI, but for this simple app Scan is acceptable
-        const data = await dynamodb_1.ddbDocClient.send(new lib_dynamodb_1.ScanCommand({
-            TableName: config_1.config.dynamoTasksTable,
-        }));
+        const meetingId = req.query.meetingId;
+        let command;
+        if (meetingId) {
+            command = new lib_dynamodb_1.ScanCommand({
+                TableName: config_1.config.dynamoTasksTable,
+                FilterExpression: "MeetingID = :mId",
+                ExpressionAttributeValues: { ":mId": meetingId }
+            });
+        }
+        else {
+            command = new lib_dynamodb_1.ScanCommand({
+                TableName: config_1.config.dynamoTasksTable,
+            });
+        }
+        const data = await dynamodb_1.ddbDocClient.send(command);
         res.status(200).json(data.Items || []);
     }
     catch (error) {

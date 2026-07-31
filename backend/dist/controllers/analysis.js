@@ -12,11 +12,15 @@ const crypto_1 = __importDefault(require("crypto"));
 const analyzeMeeting = async (req, res) => {
     try {
         const { transcript } = req.body;
+        console.log("[Backend API] Received transcript length:", transcript ? transcript.length : 0);
+        console.log("[Backend API] Transcript starts with:", typeof transcript === "string" ? transcript.substring(0, 30) : "");
         if (!transcript || typeof transcript !== "string") {
             return res.status(400).json({ error: "Transcript is required" });
         }
         // 1. Analyze transcript using Groq
+        console.log("[Backend API] Calling Groq...");
         const analysis = await (0, groq_1.analyzeMeetingTranscript)(transcript);
+        console.log("[Backend API] Groq analysis completed:", analysis.summary ? analysis.summary.substring(0, 30) : "No summary");
         // 2. Generate IDs
         const meetingId = crypto_1.default.randomUUID();
         const createdAt = new Date().toISOString();
